@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM Setup - Groups, User, and Cross-Account AssumeRole Permissions
+
+Parameters:
+  NewAccountId:
+    Type: String
+    Description: Account ID of the new AWS account to assume role in
+
+Resources:
+
+  MaintainerGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: Maintainer
+
+  DeveloperGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: Developer
+
+  AssumeRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AllowAssumeCrossAccountRole
+      Groups:
+        - Ref: MaintainerGroup
+        - Ref: DeveloperGroup
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource:
+              !Sub arn:aws:iam::${NewAccountId}:role/OrganizationAccountAccessRole
+
+  CrossAccountTargetRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CrossAccountTargetRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${NewAccountId}:root
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: ExampleTargetPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListAllMyBuckets
+                Resource: "*"
+
+  SampleUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: sampleuser
+
+  AddUserToGroup:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref DeveloperGroup
+      Users:
+        - !Ref SampleUser
+
+Outputs:
+  SampleUser:
+    Value: !Ref SampleUser
+    Description: Created IAM user
+  MaintainerGroup:
+    Value: !Ref MaintainerGroup
+  DeveloperGroup:
+    Value: !Ref DeveloperGroup
+  CrossAccountTargetRole:
+    Value: !GetAtt CrossAccountTargetRole.Arn
