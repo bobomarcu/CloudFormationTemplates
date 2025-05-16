@@ -25,15 +25,7 @@ Resources:
             Action: sts:AssumeRole
             Resource:
               !Sub arn:aws:iam::${NewAccountId}:role/OrganizationAccountAccessRole
-
-  AddUserToGroup:
-    Type: AWS::IAM::UserToGroupAddition
-    Properties:
-      GroupName: !Ref DeveloperGroup
-      Users:
-        - !Ref AdminUser
-
 Outputs:
-  SampleUser:
+  AdminUser:
     Value: !Ref AdminUser
     Description: Created IAM user
