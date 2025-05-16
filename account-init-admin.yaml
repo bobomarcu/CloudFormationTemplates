@@ -35,5 +35,5 @@ Resources:
 
 Outputs:
   SampleUser:
-    Value: !Ref SampleUser
+    Value: !Ref AdminUser
     Description: Created IAM user
