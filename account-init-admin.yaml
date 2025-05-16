@@ -16,7 +16,7 @@ Resources:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: AllowAssumeCrossAccountRole
-      Users
+      Users:
         - Ref: AdminUser
       PolicyDocument:
         Version: '2012-10-17'
