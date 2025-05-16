@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create a cross-account MaintainerAccess role with full admin access
+
+Parameters:
+  AdminAccountId:
+    Type: String
+    Description: AWS Account ID that can assume this role (the main/admin account)
+
+Resources:
+  MaintainerAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MaintainerAccess
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AdminAccountId}:root
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Path: /
+
+Outputs:
+  MaintainerRoleArn:
+    Description: ARN of the cross-account role
+    Value: !GetAtt MaintainerAccessRole.Arn

@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM Setup - Groups, User, and Cross-Account AssumeRole Permissions
+
+Parameters:
+  NewAccountId:
+    Type: String
+    Description: Account ID of the new AWS account to assume role in
+
+Resources:
+  AdminUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: AdminUser
+
+  AssumeRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AllowAssumeCrossAccountRole
+      Users
+        - Ref: AdminUser
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource:
+              !Sub arn:aws:iam::${NewAccountId}:role/OrganizationAccountAccessRole
+
+  AddUserToGroup:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref DeveloperGroup
+      Users:
+        - !Ref AdminUser
+
+Outputs:
+  SampleUser:
+    Value: !Ref SampleUser
+    Description: Created IAM user

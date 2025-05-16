@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: IAM Maintainers group with AssumeRole permissions and 3 console users
+
+Parameters:
+  DevAccountId:
+    Type: String
+    Description: Account ID of the Dev account where users will assume role
+
+Resources:
+
+  MaintainersGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: Maintainers
+
+  AssumeRolePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: MaintainerAssumeRolePolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: !Sub arn:aws:iam::${DevAccountId}:role/MaintainerAccess
+      Groups:
+        - !Ref MaintainersGroup
+
+
+Outputs:
+  MaintainersGroupArn:
+    Description: ARN of the Maintainers group
+    Value: !GetAtt MaintainersGroup.Arn
